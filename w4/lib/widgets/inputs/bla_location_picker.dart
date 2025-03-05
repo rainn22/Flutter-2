@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:week_3_blabla_project/model/ride/locations.dart';
-
 import '../../service/locations_service.dart';
+import '../../repository/mock/mock_locations_repository.dart';
 import '../../theme/theme.dart';
 
 ///
 /// This full-screen modal is in charge of providing (if confirmed) a selected location.
 ///
 class BlaLocationPicker extends StatefulWidget {
-  final Location?
-      initLocation; // The picker can be triguer with an existing location name
+  final Location? initLocation; // The picker can be triggered with an existing location name
 
   const BlaLocationPicker({super.key, this.initLocation});
 
@@ -19,14 +18,14 @@ class BlaLocationPicker extends StatefulWidget {
 
 class _BlaLocationPickerState extends State<BlaLocationPicker> {
   List<Location> filteredLocations = [];
-
-  // ----------------------------------
-  // Initialize the Form attributes
-  // ----------------------------------
+  late LocationsService locationsService;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize LocationsService with the Mock Repository
+    locationsService = LocationsService(MockLocationsRepository());
 
     if (widget.initLocation != null) {
       filteredLocations = getLocationsFor(widget.initLocation!.name);
@@ -45,7 +44,6 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
     List<Location> newSelection = [];
 
     if (searchText.length > 1) {
-      // We start to search from 2 characters only.
       newSelection = getLocationsFor(searchText);
     }
 
@@ -55,7 +53,8 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
   }
 
   List<Location> getLocationsFor(String text) {
-    return LocationsService.availableLocations
+    return locationsService
+        .getLocations()
         .where((location) =>
             location.name.toUpperCase().contains(text.toUpperCase()))
         .toList();
@@ -64,35 +63,36 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.only(
-          left: BlaSpacings.m, right: BlaSpacings.m, top: BlaSpacings.s),
-      child: Column(
-        children: [
-          // Top search Search bar
-          BlaSearchBar(
-            onBackPressed: onBackSelected,
-            onSearchChanged: onSearchChanged,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.only(
+            left: BlaSpacings.m, right: BlaSpacings.m, top: BlaSpacings.s),
+        child: Column(
+          children: [
+            // Top search bar
+            BlaSearchBar(
+              onBackPressed: onBackSelected,
+              onSearchChanged: onSearchChanged,
+            ),
 
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredLocations.length,
-              itemBuilder: (ctx, index) => LocationTile(
-                location: filteredLocations[index],
-                onSelected: onLocationSelected,
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredLocations.length,
+                itemBuilder: (ctx, index) => LocationTile(
+                  location: filteredLocations[index],
+                  onSelected: onLocationSelected,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 
 ///
-/// This tile represents an item in the list of past entered ride inputs
-///s
+/// This tile represents an item in the list of past entered ride inputs.
+///
 class LocationTile extends StatelessWidget {
   final Location location;
   final Function(Location location) onSelected;
@@ -101,7 +101,6 @@ class LocationTile extends StatelessWidget {
       {super.key, required this.location, required this.onSelected});
 
   String get title => location.name;
-
   String get subTitle => location.country.name;
 
   @override
@@ -122,8 +121,8 @@ class LocationTile extends StatelessWidget {
 }
 
 ///
-///  The Search bar combines the search input + the navigation back button
-///  A clear button appears when search contains some text.
+/// The Search bar combines the search input + the navigation back button.
+/// A clear button appears when search contains some text.
 ///
 class BlaSearchBar extends StatefulWidget {
   const BlaSearchBar(
@@ -143,10 +142,7 @@ class _BlaSearchBarState extends State<BlaSearchBar> {
   bool get searchIsNotEmpty => _controller.text.isNotEmpty;
 
   void onChanged(String newText) {
-    // 1 - Notity the listener
     widget.onSearchChanged(newText);
-
-    // 2 - Update the cross icon
     setState(() {});
   }
 
@@ -182,28 +178,28 @@ class _BlaSearchBarState extends State<BlaSearchBar> {
 
           Expanded(
             child: TextField(
-              focusNode: _focusNode, // Keep focus
+              focusNode: _focusNode,
               onChanged: onChanged,
               controller: _controller,
               style: TextStyle(color: BlaColors.textLight),
               decoration: InputDecoration(
                 hintText: "Any city, street...",
-                border: InputBorder.none, // No border
-                filled: false, // No background fill
+                border: InputBorder.none,
+                filled: false,
               ),
             ),
           ),
 
-          searchIsNotEmpty // A clear button appears when search contains some text
+          searchIsNotEmpty
               ? IconButton(
                   icon: Icon(Icons.close, color: BlaColors.iconLight),
                   onPressed: () {
                     _controller.clear();
-                    _focusNode.requestFocus(); // Ensure it stays focused
+                    _focusNode.requestFocus();
                     onChanged("");
                   },
                 )
-              : SizedBox.shrink(), // Hides the icon if text field is empty
+              : SizedBox.shrink(),
         ],
       ),
     );
