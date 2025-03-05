@@ -1,5 +1,4 @@
 import 'package:week_3_blabla_project/model/ride/locations.dart';
-
 import '../../utils/date_time_util.dart';
 import '../user/user.dart';
 
@@ -11,7 +10,7 @@ enum RideStatus {
 }
 
 ///
-/// This model describes a  Ride.
+/// This model describes a Ride.
 ///
 class Ride {
   final Location departureLocation;
@@ -21,12 +20,11 @@ class Ride {
   final DateTime arrivalDateTime;
 
   final User driver;
-
   final int availableSeats;
   final double pricePerSeat;
+  final bool acceptsPets; 
 
   RideStatus status = RideStatus.created;
-
   final List<User> passengers = [];
 
   Ride({
@@ -37,6 +35,7 @@ class Ride {
     required this.driver,
     required this.availableSeats,
     required this.pricePerSeat,
+    required this.acceptsPets,
   });
 
   void addPassenger(User passenger) {
@@ -47,8 +46,9 @@ class Ride {
 
   @override
   String toString() {
-    return 'Ride from $departureLocation at ${DateTimeUtils.formatDateTime(departureDate)} '
-        'to $arrivalLocation arriving at ${DateTimeUtils.formatDateTime(arrivalDateTime)}, '
-        'Driver: $driver, Seats: $availableSeats, Price: \$${pricePerSeat.toStringAsFixed(2)}';
+    return 'Ride from ${departureLocation.name} at ${DateTimeUtils.formatDateTime(departureDate)} '
+        'to ${arrivalLocation.name} arriving at ${DateTimeUtils.formatDateTime(arrivalDateTime)}, '
+        'Driver: ${driver.toString()}, Seats: $availableSeats, Pets Allowed: ${acceptsPets ? "Yes" : "No"}, '
+        'Price: \$${pricePerSeat.toStringAsFixed(2)}';
   }
 }
