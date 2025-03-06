@@ -44,6 +44,8 @@ class Ride {
 
   int get remainingSeats => availableSeats - passengers.length;
 
+  get duration => null;
+
   @override
   String toString() {
     return 'Ride from ${departureLocation.name} at ${DateTimeUtils.formatDateTime(departureDate)} '
