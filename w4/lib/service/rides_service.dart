@@ -3,8 +3,6 @@ import 'package:week_3_blabla_project/model/ride_pref/ride_pref.dart';
 import 'package:week_3_blabla_project/repository/rides_repository.dart';
 import '../model/ride/ride.dart';
 
-/// This service handles:
-/// - The list of available rides
 class RidesService {
   static List<Ride> availableRides = fakeRides;
 
@@ -30,16 +28,24 @@ class RidesService {
     return _instance!;
   }
 
-  List<Ride> getRides(RidePreference preferences, RidesFilter filter) {
-    return repository.getRides(preferences, filter);
+  List<Ride> getRides(RidePreference preferences, RidesFilter filter, RideSortType sortType) {
+    // Fetch rides from the repository
+    List<Ride> rides = repository.getRides(preferences, filter);
+
+    // Sort rides based on the specified sortType
+    switch (sortType) {
+      case RideSortType.earliestDeparture:
+        rides.sort((a, b) => a.departureDate.compareTo(b.departureDate));
+        break;
+    }
+
+    return rides;
   }
 
-  /// Getter to retrieve the current preference
   RidePreference getCurrentPreference() {
     return _currentPreference;
   }
 
-  /// Setter to update the current preference
   void setCurrentPreference(RidePreference newPreference) {
     _currentPreference = newPreference;
   }
@@ -49,4 +55,8 @@ class RidesFilter {
   final bool acceptPets;
 
   RidesFilter({required this.acceptPets});
+}
+
+enum RideSortType {
+  earliestDeparture,
 }

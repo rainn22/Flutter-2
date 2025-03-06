@@ -4,7 +4,6 @@ import '../../model/ride/ride.dart';
 import '../../model/ride_pref/ride_pref.dart';
 import '../../service/rides_service.dart';
 import '../../theme/theme.dart';
-
 import 'widgets/rides_tile.dart';
 import 'widgets/ride_pref_modal.dart'; // Import RidePrefModal
 
@@ -23,13 +22,17 @@ class _RidesScreenState extends State<RidesScreen> {
   @override
   void initState() {
     super.initState();
-    // TODO 1: Get initial preference from the service instead of using fake data
+    // Fetch initial preference from the service
     currentPreference = RidesService.instance.getCurrentPreference();
   }
 
+  // Get matching rides based on current preference and filter
   List<Ride> get matchingRides {
-    // Fetching rides using the RidesService singleton
-    return RidesService.instance.getRides(currentPreference, RidesFilter(acceptPets: false));
+    return RidesService.instance.getRides(
+      currentPreference,
+      RidesFilter(acceptPets: false), // Update filter logic as needed
+      RideSortType.earliestDeparture, // Default sorting, can be updated
+    );
   }
 
   void onBackPressed() {
@@ -37,7 +40,7 @@ class _RidesScreenState extends State<RidesScreen> {
   }
 
   void onPreferencePressed() async {
-    // TODO 6: Push the modal with the current preference
+    // Push the modal with the current preference
     final newPreference = await Navigator.push<RidePreference>(
       context,
       MaterialPageRoute(
@@ -46,18 +49,19 @@ class _RidesScreenState extends State<RidesScreen> {
     );
 
     if (newPreference != null) {
-      // TODO 9: After pop, update the new preference
+      // Update the new preference
       setState(() {
         currentPreference = newPreference;
       });
 
-      // TODO 10: Update the service with the new preference and refresh rides
+      // Update the service with the new preference and refresh rides
       RidesService.instance.setCurrentPreference(newPreference);
     }
   }
 
   void onFilterPressed() {
     // Future feature: Handle filter logic
+    // You can implement a similar dialog/modal for filters if needed
   }
 
   @override
@@ -81,7 +85,9 @@ class _RidesScreenState extends State<RidesScreen> {
                 itemCount: matchingRides.length,
                 itemBuilder: (ctx, index) => RideTile(
                   ride: matchingRides[index],
-                  onPressed: () {},
+                  onPressed: () {
+                    // Handle ride selection
+                  },
                 ),
               ),
             ),
