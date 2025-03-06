@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:week_3_blabla_project/screens/rides/widgets/filter_dialog.dart';
 import 'package:week_3_blabla_project/screens/rides/widgets/ride_pref_bar.dart';
 import '../../model/ride/ride.dart';
 import '../../model/ride_pref/ride_pref.dart';
@@ -18,6 +19,8 @@ class RidesScreen extends StatefulWidget {
 
 class _RidesScreenState extends State<RidesScreen> {
   late RidePreference currentPreference;
+  String sortBy = 'Earliest departure'; // Default sorting option
+  bool petsAccepted = false; // Default pet acceptance
 
   @override
   void initState() {
@@ -30,8 +33,8 @@ class _RidesScreenState extends State<RidesScreen> {
   List<Ride> get matchingRides {
     return RidesService.instance.getRides(
       currentPreference,
-      RidesFilter(acceptPets: false), // Update filter logic as needed
-      RideSortType.earliestDeparture, // Default sorting, can be updated
+      RidesFilter(acceptPets: petsAccepted), // Use the filter with pets acceptance
+      sortBy == 'Earliest departure' ? RideSortType.earliestDeparture : RideSortType.earliestDeparture, // Add more sorting options if needed
     );
   }
 
@@ -54,14 +57,25 @@ class _RidesScreenState extends State<RidesScreen> {
         currentPreference = newPreference;
       });
 
-      // Update the service with the new preference and refresh rides
+      // Update the service with the new preference
       RidesService.instance.setCurrentPreference(newPreference);
     }
   }
 
   void onFilterPressed() {
-    // Future feature: Handle filter logic
-    // You can implement a similar dialog/modal for filters if needed
+    showDialog(
+      context: context,
+      builder: (context) {
+        return FilterDialog(
+          onApply: (String selectedSort, bool petsAccepted) {
+            setState(() {
+              sortBy = selectedSort;
+              this.petsAccepted = petsAccepted;
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
