@@ -11,6 +11,7 @@ class RidesService {
   static RidesService? _instance;
 
   final RidesRepository repository;
+  RidePreference _currentPreference = fakeRidePrefs[0]; // Default value
 
   RidesService._internal(this.repository);
 
@@ -18,20 +19,29 @@ class RidesService {
     if (_instance == null) {
       _instance = RidesService._internal(repository);
     } else {
-      throw Exception("The Ride is already initialized.");
+      throw Exception("The Ride service is already initialized.");
     }
   }
 
   static RidesService get instance {
     if (_instance == null) {
-      throw Exception(
-          "RideService is not initialized. Call initialize() first.");
+      throw Exception("RideService is not initialized. Call initialize() first.");
     }
     return _instance!;
   }
 
   List<Ride> getRides(RidePreference preferences, RidesFilter filter) {
     return repository.getRides(preferences, filter);
+  }
+
+  /// Getter to retrieve the current preference
+  RidePreference getCurrentPreference() {
+    return _currentPreference;
+  }
+
+  /// Setter to update the current preference
+  void setCurrentPreference(RidePreference newPreference) {
+    _currentPreference = newPreference;
   }
 }
 

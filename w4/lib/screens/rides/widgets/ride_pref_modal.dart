@@ -6,11 +6,12 @@ import '../../../theme/theme.dart';
 import '../../ride_pref/widgets/ride_pref_form.dart';
 
 class RidePrefModal extends StatefulWidget {
+  final RidePreference currentPreference;
 
   const RidePrefModal({
-
     super.key,     
      // TODO 7 : We should pass the current prefs to this moda; 
+     required this.currentPreference, // Pass the current preference
   });
  
   @override
@@ -23,40 +24,43 @@ class _RidePrefModalState extends State<RidePrefModal> {
   }
 
   void onSubmit(RidePreference newPreference) {
-      // TODO 9 : We should pop this modal, with the new current preference
+    // TODO 9 : We should pop this modal, with the new current preference
+    Navigator.of(context).pop(newPreference); // Pop with new preference
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.only(
-          left: BlaSpacings.m, right: BlaSpacings.m, top: BlaSpacings.s),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Back icon
-          BlaIconButton(
-            onPressed: onBackSelected,
-            icon: Icons.close,
-          ),
-          SizedBox(height: BlaSpacings.m),
-
-          // Title
-          Text("Edit your search",
-              style: BlaTextStyles.title.copyWith(color: BlaColors.textNormal)),
-
-          // Form
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: RidePrefForm(
-              initialPreference: null,        // TODO 7 : The form should be displayed with the modal current prefs
-              onSubmit: onSubmit,
+      body: Padding(
+        padding: const EdgeInsets.only(
+            left: BlaSpacings.m, right: BlaSpacings.m, top: BlaSpacings.s),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Back icon
+            BlaIconButton(
+              onPressed: onBackSelected,
+              icon: Icons.close,
             ),
-          )),
-        ],
+            SizedBox(height: BlaSpacings.m),
+
+            // Title
+            Text("Edit your search",
+                style: BlaTextStyles.title.copyWith(color: BlaColors.textNormal)),
+
+            // Form
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: RidePrefForm(
+                  initialPreference: widget.currentPreference, // Use modal's current preference
+                  onSubmit: onSubmit,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
