@@ -25,7 +25,7 @@ class _RidesScreenState extends State<RidesScreen> {
   RidePreference currentPreference  = fakeRidePrefs[0];   // TODO 1 :  We should get it from the service
   List<Ride> get matchingRides {
     // Fetching rides using the RidesService singleton
-    return RidesService().getRides(currentPreference, RidesFilter(acceptPets: false));  // Example of filter
+    return RidesService.instance.getRides(currentPreference, RidesFilter(acceptPets: false));
   }
 
   void onBackPressed() {
