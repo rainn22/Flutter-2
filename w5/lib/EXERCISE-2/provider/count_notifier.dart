@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-
 class ColorCounters extends ChangeNotifier {
-  int _redTapCount = 0;
-  int _blueTapCount = 0;
+  int _redCount = 0;
+  int _blueCount = 0;
 
-  int get redTapCount => _redTapCount;
-  int get blueTapCount => _blueTapCount;
+  int get redCount => _redCount;
+  int get blueCount => _blueCount;
 
   void incrementRed() {
-    _redTapCount++;
+    _redCount++;
     notifyListeners();
   }
 
   void incrementBlue() {
-    _blueTapCount++;
+    _blueCount++;
     notifyListeners();
   }
 }

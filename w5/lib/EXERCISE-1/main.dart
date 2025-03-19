@@ -3,12 +3,17 @@ import 'package:week_3_blabla_project/EXERCISE-1/service/ride_prefs_service.dart
 import 'package:week_3_blabla_project/EXERCISE-1/service/repository/ride_preferences_repository.dart';
 
 void main() {
-  var repository = InMemoryRidePreferencesRepository();
-  RidePrefService.initialize(repository);
-  var rideService = RidePrefService.instance;
+  RidepreferencesService ridepreferencesService = RidepreferencesService();
+  ConsoleLogger consoleLogger = ConsoleLogger();
 
-  var logger = ConsoleLogger();
-  rideService.addListener(logger);
+  RidePreference selectedPreference = RidePreference(
+    departure: Location(name: "Phnom penh", country: Country.cambodia),
+    arrival: Location(name: "Phnom penh", country: Country.cambodia),
+    departureDate: DateTime.now(),
+    requestedSeats: 2,
+  );
 
-  rideService.setCurrentPreference;
+  ridepreferencesService.addListener(consoleLogger);
+
+  ridepreferencesService.setRidePreference(selectedPreference);
 }
