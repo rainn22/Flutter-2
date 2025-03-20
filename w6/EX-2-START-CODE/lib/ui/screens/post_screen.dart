@@ -48,6 +48,7 @@ class PostScreen extends StatelessWidget {
           
           itemCount: postValue.data!.length,
           itemBuilder: (context,index){
+            return PostCard(post: postValue.data![index]);
 
         }); // display the post
     }
