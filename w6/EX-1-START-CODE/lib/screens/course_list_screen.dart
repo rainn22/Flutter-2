@@ -14,21 +14,19 @@ class CourseListScreen extends StatefulWidget {
 }
 
 class _CourseListScreenState extends State<CourseListScreen> {
-  // Modified to pass courseName instead of Course object for better state management
   void _editCourse(Course course) async {
     await Navigator.of(context).push<Course>(
       MaterialPageRoute(
         builder:
             (ctx) => CourseScreen(
               courseName: course.name,
-            ), // Changed to pass courseName
+            ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Access courses through Provider instead of local state
     final coursesProvider = Provider.of<CourseProvider>(context);
     final courses = coursesProvider.courses;
 

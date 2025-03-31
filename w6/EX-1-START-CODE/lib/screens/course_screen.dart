@@ -12,7 +12,7 @@ class CourseScreen extends StatelessWidget {
   void _addScore(BuildContext context, Course course) async {
     final CourseScore? newScore = await Navigator.of(
       context,
-    ).push<CourseScore>(MaterialPageRoute(builder: (ctx) => CourseScoreForm()));
+    ).push<CourseScore>(MaterialPageRoute(builder: (ctx) => const CourseScoreForm()));
 
     if (newScore != null) {
       Provider.of<CourseProvider>(

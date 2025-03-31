@@ -26,11 +26,9 @@ class _CourseScoreFormState extends State<CourseScoreForm> {
     _enteredScore = 50;
   }
 
-  // Modified to return CourseScore object directly to be handled by Provider
   void _saveItem() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Return new CourseScore to be added through Provider
       Navigator.of(
         context,
       ).pop(CourseScore(studentName: _enteredName, studentScore: _enteredScore));
