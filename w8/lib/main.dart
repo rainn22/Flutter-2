@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/ui/app.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -12,15 +13,18 @@ import 'async_value.dart';
 abstract class PancakeRepository {
   Future<Pancake> addPancake({required String color, required double price});
   Future<List<Pancake>> getPancakes();
+  Future<void> deletePancake(String id);
 }
 
 class FirebasePancakeRepository extends PancakeRepository {
-  static const String baseUrl = 'YOUR URL';
+  static const String baseUrl =
+      'https://test-firebase-7aeb6-default-rtdb.asia-southeast1.firebasedatabase.app';
   static const String pancakesCollection = "pancakes";
   static const String allPancakesUrl = '$baseUrl/$pancakesCollection.json';
 
   @override
-  Future<Pancake> addPancake({required String color, required double price}) async {
+  Future<Pancake> addPancake(
+      {required String color, required double price}) async {
     Uri uri = Uri.parse(allPancakesUrl);
 
     // Create a new data
@@ -49,7 +53,8 @@ class FirebasePancakeRepository extends PancakeRepository {
     final http.Response response = await http.get(uri);
 
     // Handle errors
-    if (response.statusCode != HttpStatus.ok && response.statusCode != HttpStatus.created) {
+    if (response.statusCode != HttpStatus.ok &&
+        response.statusCode != HttpStatus.created) {
       throw Exception('Failed to load');
     }
 
@@ -57,25 +62,18 @@ class FirebasePancakeRepository extends PancakeRepository {
     final data = json.decode(response.body) as Map<String, dynamic>?;
 
     if (data == null) return [];
-    return data.entries.map((entry) => PancakeDto.fromJson(entry.key, entry.value)).toList();
+    return data.entries
+        .map((entry) => PancakeDto.fromJson(entry.key, entry.value))
+        .toList();
   }
-}
-
-class MockPancakeRepository extends PancakeRepository {
-  final List<Pancake> pancakes = [];
-
   @override
-  Future<Pancake> addPancake({required String color, required double price}) {
-    return Future.delayed(Duration(seconds: 1), () {
-      Pancake newPancake = Pancake(id: "0", color: color, price: 12);
-      pancakes.add(newPancake);
-      return newPancake;
-    });
-  }
+  Future<void> deletePancake(String id) async {
+    Uri uri = Uri.parse('$baseUrl/$pancakesCollection/$id.json');
+    final response = await http.delete(uri);
 
-  @override
-  Future<List<Pancake>> getPancakes() {
-    return Future.delayed(Duration(seconds: 1), () => pancakes);
+    if (response.statusCode != HttpStatus.ok && response.statusCode != HttpStatus.noContent) {
+      throw Exception('Failed to delete pancake');
+    }
   }
 }
 
@@ -116,8 +114,10 @@ class Pancakeprovider extends ChangeNotifier {
     fetchUsers();
   }
 
-  bool get isLoading => pancakesState != null && pancakesState!.state == AsyncValueState.loading;
-  bool get hasData => pancakesState != null && pancakesState!.state == AsyncValueState.success;
+  bool get isLoading =>
+      pancakesState != null && pancakesState!.state == AsyncValueState.loading;
+  bool get hasData =>
+      pancakesState != null && pancakesState!.state == AsyncValueState.success;
 
   void fetchUsers() async {
     try {
@@ -139,25 +139,30 @@ class Pancakeprovider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addPancake(String color, double price) async {
+  Future<void> addPancake(String color, double price) async {
     // 1- Call repo to add
-    _repository.addPancake(color: color, price: price);
-
+    await _repository.addPancake(color: color, price: price);
     // 2- Call repo to fetch
+    fetchUsers();
+  }
+
+  Future<void> deletePancake(String id) async {
+    await _repository.deletePancake(id);
     fetchUsers();
   }
 }
 
-// 5 - MAIN
-void main() async {
-  // 1 - Create repository
+// MAIN FUNCTION
+void main() {
   final PancakeRepository pancakeRepository = FirebasePancakeRepository();
 
-  // 2-  Run app
   runApp(
     ChangeNotifierProvider(
       create: (context) => Pancakeprovider(pancakeRepository),
-      child: MaterialApp(debugShowCheckedModeBanner: false, home: const App()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: const App(),
+      ),
     ),
   );
 }
