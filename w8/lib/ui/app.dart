@@ -1,14 +1,13 @@
-import 'package:app/main.dart';
+import 'package:app/provider/pancake_provide.dart';
+import 'package:app/ui/pancake_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 
 class App extends StatelessWidget {
   const App({super.key});
 
   void _onAddPressed(BuildContext context) {
-    final pancakeProvider = context.read<Pancakeprovider>();
-    pancakeProvider.addPancake("blue", 3.1);
+    showPancakeForm(context);
   }
 
   @override
@@ -50,9 +49,18 @@ class PancakeList extends StatelessWidget {
           return ListTile(
             title: Text(pancake.color),
             subtitle: Text("\$${pancake.price.toStringAsFixed(2)}"),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => provider.deletePancake(pancake.id),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => showPancakeForm(context, pancake: pancake),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => provider.deletePancake(pancake.id),
+                ),
+              ],
             ),
           );
         },

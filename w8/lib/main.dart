@@ -2,18 +2,19 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app/provider/pancake_provide.dart';
 import 'package:app/ui/app.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-import 'async_value.dart';
 
 // REPOS
 abstract class PancakeRepository {
   Future<Pancake> addPancake({required String color, required double price});
   Future<List<Pancake>> getPancakes();
   Future<void> deletePancake(String id);
+  Future<void> updatePancake(Pancake pancake);
 }
 
 class FirebasePancakeRepository extends PancakeRepository {
@@ -66,13 +67,29 @@ class FirebasePancakeRepository extends PancakeRepository {
         .map((entry) => PancakeDto.fromJson(entry.key, entry.value))
         .toList();
   }
+
   @override
   Future<void> deletePancake(String id) async {
     Uri uri = Uri.parse('$baseUrl/$pancakesCollection/$id.json');
     final response = await http.delete(uri);
 
-    if (response.statusCode != HttpStatus.ok && response.statusCode != HttpStatus.noContent) {
+    if (response.statusCode != HttpStatus.ok &&
+        response.statusCode != HttpStatus.noContent) {
       throw Exception('Failed to delete pancake');
+    }
+  }
+
+  @override
+  Future<void> updatePancake(Pancake pancake) async {
+    Uri uri = Uri.parse('$baseUrl/$pancakesCollection/${pancake.id}.json');
+    final response = await http.put(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'color': pancake.color, 'price': pancake.price}),
+    );
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception('Failed to update pancake');
     }
   }
 }
@@ -103,53 +120,6 @@ class Pancake {
 
   @override
   int get hashCode => super.hashCode ^ id.hashCode;
-}
-
-// PROVIDER
-class Pancakeprovider extends ChangeNotifier {
-  final PancakeRepository _repository;
-  AsyncValue<List<Pancake>>? pancakesState;
-
-  Pancakeprovider(this._repository) {
-    fetchUsers();
-  }
-
-  bool get isLoading =>
-      pancakesState != null && pancakesState!.state == AsyncValueState.loading;
-  bool get hasData =>
-      pancakesState != null && pancakesState!.state == AsyncValueState.success;
-
-  void fetchUsers() async {
-    try {
-      // 1- loading state
-      pancakesState = AsyncValue.loading();
-      notifyListeners();
-
-      // 2 - Fetch users
-      pancakesState = AsyncValue.success(await _repository.getPancakes());
-
-      print("SUCCESS: list size ${pancakesState!.data!.length.toString()}");
-
-      // 3 - Handle errors
-    } catch (error) {
-      print("ERROR: $error");
-      pancakesState = AsyncValue.error(error);
-    }
-
-    notifyListeners();
-  }
-
-  Future<void> addPancake(String color, double price) async {
-    // 1- Call repo to add
-    await _repository.addPancake(color: color, price: price);
-    // 2- Call repo to fetch
-    fetchUsers();
-  }
-
-  Future<void> deletePancake(String id) async {
-    await _repository.deletePancake(id);
-    fetchUsers();
-  }
 }
 
 // MAIN FUNCTION
